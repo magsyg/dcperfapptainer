@@ -1,0 +1,20 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./benchmarks
+    ./benchpress
+    ./packages
+    ./perfutils
+    ./benchpress_cli.py
+    ./benchpress.log
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y python3-pip git wget lshw dmidecode sudo bc libavif-dev
+    ulimit -n 65536
+    pip3 install click pyyaml tabulate pandas
+    ./benchpress_cli.py install video_transcode_bench_svt
+    ./benchpress_cli.py run video_transcode_bench_svt

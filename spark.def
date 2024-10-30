@@ -1,0 +1,35 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./benchmarks
+    ./benchpress
+    ./packages
+    ./perfutils
+    ./benchpress_cli.py
+    ./benchpress.log
+
+%post
+    chmod 1777 /tmp
+    export CONFIG_BLK_DEV_NVME=y
+    export CONFIG_NVME_CORE=y
+    export CONFIG_NVME_MULTIPATH=y
+    export CONFIG_NVME_FABRICS=m
+    export CONFIG_NVME_TARGET=m
+    export CONFIG_NVME_TARGET_LOOP=m
+    export CONFIG_NVME_TARGET_TCP=m
+    export CONFIG_NVME_TCP=m
+    apt-get -y update
+    apt install -y python3-pip git wget lshw dmidecode sudo bc curl numactl git-lfs
+    ulimit -n 65536
+    pip3 install click pyyaml tabulate pandas
+    mkdir /flash23
+    cd /flash23
+    git clone https://github.com/facebookresearch/DCPerf-datasets
+    rm -rf DCPerf-datasets/bpc_t93586_s2_synthetic/table_93586/table_uu9fgFJsVdtOC878DXBVyo_IqVwQVjeAOXhXDBOM8Tc_/
+    mv DCPerf-datasets/bpc_t93586_s2_synthetic ./bpc_t93586_s2_synthetic
+    cd -
+    pwd
+    ./benchpress_cli.py install spark_standalone_remote
+    ./benchpress_cli.py run spark_standalone_remote

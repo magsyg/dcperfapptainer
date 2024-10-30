@@ -1,0 +1,20 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./benchmarks
+    ./benchpress
+    ./packages
+    ./perfutils
+    ./benchpress_cli.py
+    ./benchpress.log
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y python3-pip git wget lshw dmidecode sudo bc vim openjdk-8-jdk netcat curl
+    ulimit -n 65536
+    pip3 install click pyyaml tabulate pandas
+    ./benchpress_cli.py install django_workload_default
+    ./benchpress_cli.py run django_workload_default -r standalone

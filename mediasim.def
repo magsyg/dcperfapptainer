@@ -1,0 +1,30 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./benchmarks
+    ./benchpress
+    ./packages
+    ./perfutils
+    ./benchpress_cli.py
+    ./benchpress.log
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    export DEBIAN_FRONTEND=noninteractive
+    apt install -y python3-pip git wget lshw dmidecode sudo bc curl numactl zstd policycoreutils selinux-utils selinux-basics
+    ulimit -n 65536
+    export SELINUX=disabled
+    apt-get update
+    apt-get install -y software-properties-common apt-transport-https
+    apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xB4112585D386EB94
+    add-apt-repository 'deb https://dl.hhvm.com/universal release main'
+    apt-get update
+    apt-get install -y hhvm
+    pip3 install click pyyaml tabulate pandas
+    ./benchpress_cli.py install oss_performance_mediawiki_mlp
+    systemctl start mariadb
+    echo 1 | tee //proc/sys/net/ipv4/tcp_tw_reuse
+    #./benchpress_cli.py run oss_performance_mediawiki_mlp
