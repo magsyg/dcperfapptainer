@@ -1,16 +1,18 @@
 FROM ubuntu:22.04
 
+RUN chmod 1777 /tmp
 RUN apt-get update
-RUN apt-get install -y python3-pip git wget lshw dmidecode sudo
+RUN apt install -y python3-pip git wget lshw dmidecode sudo bc libavif-dev
 RUN ulimit -n 65536
 
 RUN mkdir /benchmarks
 WORKDIR /benchmarks
-COPY . /benchmarks
-RUN mkdir /dev/mem
+COPY ./benchmarks /benchmarks
+COPY ./benchpress /benchmarks
+COPY ./packages /benchmarks
+COPY ./perfutils /benchmarks
+COPY ./benchpress_cli.py /benchmarks
+COPY ./benchpress.log
 
 RUN pip3 install click pyyaml tabulate pandas
-
-RUN python3 benchpress_cli.py install tao_bench_64g
-
-# Freezes forever
+RUN python3 benchpress_cli.py install video_transcode_bench_svt

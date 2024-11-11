@@ -20,4 +20,9 @@ Stage: build
     ulimit -n 65536
     pip3 install click pyyaml tabulate pandas
     ./benchpress_cli.py install feedsim_autoscale
+
+%runscript
+    cd //
     ./benchpress_cli.py run feedsim_autoscale
+
+

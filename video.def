@@ -17,4 +17,7 @@ Stage: build
     ulimit -n 65536
     pip3 install click pyyaml tabulate pandas
     ./benchpress_cli.py install video_transcode_bench_svt
+
+%runscript
+    cd //
     ./benchpress_cli.py run video_transcode_bench_svt

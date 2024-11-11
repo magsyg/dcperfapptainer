@@ -17,4 +17,7 @@ Stage: build
     ulimit -n 65536
     pip3 install click pyyaml tabulate pandas
     ./benchpress_cli.py install tao_bench_64g
+
+%runscript
+    cd //
     ./benchpress_cli.py run tao_bench_standalone

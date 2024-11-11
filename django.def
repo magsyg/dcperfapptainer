@@ -17,4 +17,7 @@ Stage: build
     ulimit -n 65536
     pip3 install click pyyaml tabulate pandas
     ./benchpress_cli.py install django_workload_default
+
+%runscript
+    cd //
     ./benchpress_cli.py run django_workload_default -r standalone

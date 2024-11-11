@@ -32,4 +32,7 @@ Stage: build
     cd -
     pwd
     ./benchpress_cli.py install spark_standalone_remote
+
+%runscript
+    cd //
     ./benchpress_cli.py run spark_standalone_remote

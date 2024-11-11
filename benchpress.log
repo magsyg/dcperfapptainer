@@ -1,0 +1,8 @@
+[2024-10-31 15:20:04,355] benchpress.cli.main INFO    : Loaded 9 benchmarks and 29 jobs
+[2024-10-31 15:20:04,387] benchpress.lib.dmidecode ERROR   : Command 'dmidecode' returned non-zero exit status 1.
+[2024-10-31 15:20:04,904] benchpress.lib.job INFO    : Running setup hooks for "django_workload_default"
+[2024-10-31 15:20:04,904] benchpress.lib.job INFO    : Running <benchpress.plugins.hooks.copy.CopyMoveHook object at 0x15478ef08640> {'is_move': True, 'after': ['benchmarks/django_workload/django-workload/client/perf.data']}
+[2024-10-31 15:20:04,904] benchpress.lib.job INFO    : Starting "django_workload_default"
+[2024-10-31 15:20:04,905] benchpress.lib.job ERROR   : "django_workload_default" failed ([Errno 2] No such file or directory: './benchmarks/django_workload/bin/run.sh')
+[2024-10-31 15:20:04,905] benchpress.lib.job ERROR   : Binary not found, did you forget to install it?
+[2024-10-31 15:20:04,905] benchpress.lib.job INFO    : Running cleanup hooks for "django_workload_default"
