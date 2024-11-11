@@ -12,7 +12,7 @@ COPY ./benchpress /benchmarks
 COPY ./packages /benchmarks
 COPY ./perfutils /benchmarks
 COPY ./benchpress_cli.py /benchmarks
-COPY ./benchpress.log
+COPY ./benchpress.log /benchmarks
 
 RUN pip3 install click pyyaml tabulate pandas
 RUN python3 benchpress_cli.py install video_transcode_bench_svt
