@@ -7,7 +7,6 @@ RUN ulimit -n 65536
 
 RUN mkdir /benchmarks
 WORKDIR /benchmarks
-COPY ./benchmarks /benchmarks
 COPY ./benchpress /benchmarks
 COPY ./packages /benchmarks
 COPY ./perfutils /benchmarks
