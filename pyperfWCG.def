@@ -1,0 +1,26 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./cpython
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y  build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim openjdk-8-jdk netcat curl
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    ulimit -n 65536
+    cd cpython
+    git checkout 3.10
+    make clean
+    ./configure --with-computed-gotos
+    make -j
+    make install
+    cd ..
+    python3 -m pip install pyperformance
+    python3 -m pyperformance venv create -b all
+
+%runscript
+    cd //
+    python3 -m pyperformance run -b all

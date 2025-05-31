@@ -1,0 +1,27 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./cpython
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y libsqlite3-dev build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    ulimit -n 65536
+    cd cpython
+    git checkout 3.13.top5cgv2
+    make clean
+    ./configure --with-computed-gotos --enable-loadable-sqlite-extensions 
+    make -j
+    make install
+    cd ..
+    python3 -m pip install -e git+https://github.com/django/djangobench.git#egg=djangobench
+    python3 -m pip install django pytz enum34 tzdata
+    git clone https://github.com/django/django.git
+
+%runscript
+    cd //django
+    djangobench --trials=500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python $@

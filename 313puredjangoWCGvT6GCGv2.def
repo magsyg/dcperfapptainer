@@ -1,0 +1,42 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./cpython cpythonWCG
+    ./cpython cpythonT5GCG
+    
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y libsqlite3-dev build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    ulimit -n 65536
+    cd cpythonWCG
+    git checkout 3.13
+    make clean
+    ./configure --with-computed-gotos --enable-loadable-sqlite-extensions 
+    make -j
+    make install
+    cd ../cpythonT5GCG
+    git checkout 3.13.top6cgv2
+    make clean
+    ./configure --with-computed-gotos --enable-loadable-sqlite-extensions 
+    make -j
+    cd ..
+    python3 -m pip install -e git+https://github.com/django/djangobench.git#egg=djangobench
+    python3 -m pip install django pytz enum34 tzdata
+    git clone https://github.com/django/django.git
+
+%runscript
+    cd //django
+    djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpythonWCG/python --experiment-python=//cpythonT5GCG/python
+    echo "new line"
+    djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpythonWCG/python --experiment-python=//cpythonT5GCG/python
+    echo "new line"
+    djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpythonWCG/python --experiment-python=//cpythonT5GCG/python
+    echo "new line"
+    djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpythonWCG/python --experiment-python=//cpythonT5GCG/python
+    echo "new line"
+    djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpythonWCG/python --experiment-python=//cpythonT5GCG/python

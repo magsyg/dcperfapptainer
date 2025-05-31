@@ -1,0 +1,42 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%environment
+    export JAVA_HOME="//usr/java/jdk-11.0.25"
+    export PATH=$JAVA_HOME/bin:$PATH
+
+%files
+    ./benchmarks
+    ./benchpress
+    ./packages
+    ./perfutils
+    ./benchpress_cli.py
+    ./benchpress.log
+    ./cpython
+    ./jdk-11.0.25_linux-x64_bin.tar.gz
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y tar build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    mkdir -p //usr/java
+    tar zxvf jdk-11.0.25_linux-x64_bin.tar.gz -C //usr/java
+    ulimit -n 65536
+    cd cpython
+    git checkout 3.10
+    make clean
+    ./configure --without-computed-gotos
+    make -j
+    make install
+    cd ..
+    rm jdk-11.0.25_linux-x64_bin.tar.gz
+    python3 -m pip install --upgrade pip --trusted-host pypi.org
+    python3 -m pip install tabulate pyyaml pandas click 
+    python3 benchpress_cli.py install django_workload_default
+
+%runscript
+    cd //
+    java -version
+    python3 benchpress_cli.py run django_workload_default -r standalone

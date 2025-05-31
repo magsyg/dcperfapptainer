@@ -1,0 +1,3 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build

@@ -15,8 +15,8 @@ DJANGO_SERVER_ROOT="${DJANGO_REPO_ROOT}/django-workload"
 DJANGO_WORKLOAD_DEPS="${DJANGO_SERVER_ROOT}/third_party"
 
 # Install system dependencies
-apt install -y memcached libmemcached-dev zlib1g-dev screen \
-    python3 python3.10-dev python3.10-venv rpm
+#apt install -y memcached libmemcached-dev zlib1g-dev screen python3 python3.10-dev python3.10-venv rpm
+apt install -y memcached libmemcached-dev zlib1g-dev screen rpm
 
 # Clone django-workload git repository
 mkdir -p "${DJANGO_WORKLOAD_ROOT}"
@@ -134,8 +134,8 @@ unalias wget 2>/dev/null || echo "[Finished] downloading dependencies"
 install -m755 -D "${TEMPLATES_DIR}/run.sh" "${DJANGO_WORKLOAD_ROOT}/bin/run.sh"
 
 # 2. Install JDK
-JDK_NAME=openjdk-11-jdk
-apt install -y "${JDK_NAME}" || { echo "Could not install ${JDK_NAME} package"; exit 1;}
+#JDK_NAME=openjdk-11-jdk
+#apt install -y "${JDK_NAME}" || { echo "Could not install ${JDK_NAME} package"; exit 1;}
 
 # 4. Install Cassandra
 # Download Cassandra from third-party source

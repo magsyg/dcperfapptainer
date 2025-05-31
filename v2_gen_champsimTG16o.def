@@ -1,0 +1,285 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./cpython
+    ./ChampSim
+
+%post
+    # Base Dependencies
+    export PIN_ROOT="//ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/"
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y libsqlite3-dev build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl zip unzip tar pkg-config
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    ulimit -n 65536
+    # Setup Python Version
+    cd cpython
+    git checkout 3.13.top16cg
+    make clean
+    ./configure --with-computed-gotos --enable-loadable-sqlite-extensions 
+    make -j
+    make install
+    cd ..
+    # Setup ChampSim    
+    cd ChampSim
+    git submodule update --init
+    vcpkg/bootstrap-vcpkg.sh
+    vcpkg/vcpkg install
+    ./config.sh champsim_config.json
+    make -j
+    # Install pin
+    cd //ChampSim/tracer/pin/
+    wget https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.22-98547-g7a303a835-gcc-linux.tar.gz
+    tar zxf pin-3.22-98547-g7a303a835-gcc-linux.tar.gz  --no-same-owner
+    rm -rf pin-3.22-98547-g7a303a835-gcc-linux.tar.gz
+    cd pin-3.22-98547-g7a303a835-gcc-linux/source/tools
+    make -j
+    cd //ChampSim/tracer/pin/
+    make -j
+    cd //
+    #
+    # Django Bench
+    python3 -m pip install -e git+https://github.com/django/djangobench.git#egg=djangobench
+    python3 -m pip install django pytz enum34 tzdata
+    git clone https://github.com/django/django.git
+
+%runscript
+    cd //
+    mkdir /data
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_template_render_simple_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python template_render_simple
+    cd //data
+    xz -vT0 //data/TG16o_template_render_simple_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_template_render_simple_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_values_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_values
+    cd //data
+    xz -vT0 //data/TG16o_query_values_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_values_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_exists_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_exists
+    cd //data
+    xz -vT0 //data/TG16o_query_exists_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_exists_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_in_bulk_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_in_bulk
+    cd //data
+    xz -vT0 //data/TG16o_query_in_bulk_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_in_bulk_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_form_create_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python form_create
+    cd //data
+    xz -vT0 //data/TG16o_form_create_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_form_create_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_form_clean_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python form_clean
+    cd //data
+    xz -vT0 //data/TG16o_form_clean_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_form_clean_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_update_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_update
+    cd //data
+    xz -vT0 //data/TG16o_query_update_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_update_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_prefetch_related_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_prefetch_related
+    cd //data
+    xz -vT0 //data/TG16o_query_prefetch_related_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_prefetch_related_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_raw_deferred_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_raw_deferred
+    cd //data
+    xz -vT0 //data/TG16o_query_raw_deferred_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_raw_deferred_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_get_or_create_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_get_or_create
+    cd //data
+    xz -vT0 //data/TG16o_query_get_or_create_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_get_or_create_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_distinct_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_distinct
+    cd //data
+    xz -vT0 //data/TG16o_query_distinct_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_distinct_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_get_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_get
+    cd //data
+    xz -vT0 //data/TG16o_query_get_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_get_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_aggregate_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_aggregate
+    cd //data
+    xz -vT0 //data/TG16o_query_aggregate_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_aggregate_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_delete_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_delete
+    cd //data
+    xz -vT0 //data/TG16o_query_delete_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_delete_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_filter_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_filter
+    cd //data
+    xz -vT0 //data/TG16o_query_filter_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_filter_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_model_save_new_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python model_save_new
+    cd //data
+    xz -vT0 //data/TG16o_model_save_new_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_model_save_new_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_all_converters_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_all_converters
+    cd //data
+    xz -vT0 //data/TG16o_query_all_converters_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_all_converters_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_template_render_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python template_render
+    cd //data
+    xz -vT0 //data/TG16o_template_render_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_template_render_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_url_resolve_flat_i18n_off_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_resolve_flat_i18n_off
+    cd //data
+    xz -vT0 //data/TG16o_url_resolve_flat_i18n_off_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_url_resolve_flat_i18n_off_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_complex_filter_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_complex_filter
+    cd //data
+    xz -vT0 //data/TG16o_query_complex_filter_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_complex_filter_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_url_reverse_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_reverse
+    cd //data
+    xz -vT0 //data/TG16o_url_reverse_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_url_reverse_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_delete_related_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_delete_related
+    cd //data
+    xz -vT0 //data/TG16o_query_delete_related_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_delete_related_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_model_save_existing_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python model_save_existing
+    cd //data
+    xz -vT0 //data/TG16o_model_save_existing_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_model_save_existing_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_order_by_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_order_by
+    cd //data
+    xz -vT0 //data/TG16o_query_order_by_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_order_by_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_latest_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_latest
+    cd //data
+    xz -vT0 //data/TG16o_query_latest_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_latest_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_url_resolve_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_resolve
+    cd //data
+    xz -vT0 //data/TG16o_url_resolve_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_url_resolve_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_none_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_none
+    cd //data
+    xz -vT0 //data/TG16o_query_none_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_none_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_all_multifield_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_all_multifield
+    cd //data
+    xz -vT0 //data/TG16o_query_all_multifield_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_all_multifield_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_values_list_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_values_list
+    cd //data
+    xz -vT0 //data/TG16o_query_values_list_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_values_list_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_values_10000_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_values_10000
+    cd //data
+    xz -vT0 //data/TG16o_query_values_10000_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_values_10000_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_l10n_render_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python l10n_render
+    cd //data
+    xz -vT0 //data/TG16o_l10n_render_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_l10n_render_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_iterator_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_iterator
+    cd //data
+    xz -vT0 //data/TG16o_query_iterator_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_iterator_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_model_delete_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python model_delete
+    cd //data
+    xz -vT0 //data/TG16o_model_delete_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_model_delete_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_qs_filter_chaining_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python qs_filter_chaining
+    cd //data
+    xz -vT0 //data/TG16o_qs_filter_chaining_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_qs_filter_chaining_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_model_creation_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python model_creation
+    cd //data
+    xz -vT0 //data/TG16o_model_creation_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_model_creation_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_template_compilation_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python template_compilation
+    cd //data
+    xz -vT0 //data/TG16o_template_compilation_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_template_compilation_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_all_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_all
+    cd //data
+    xz -vT0 //data/TG16o_query_all_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_all_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_select_related_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_select_related
+    cd //data
+    xz -vT0 //data/TG16o_query_select_related_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_select_related_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_annotate_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_annotate
+    cd //data
+    xz -vT0 //data/TG16o_query_annotate_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_annotate_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_raw_sql_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python raw_sql
+    cd //data
+    xz -vT0 //data/TG16o_raw_sql_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_raw_sql_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_url_resolve_nested_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_resolve_nested
+    cd //data
+    xz -vT0 //data/TG16o_url_resolve_nested_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_url_resolve_nested_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_count_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_count
+    cd //data
+    xz -vT0 //data/TG16o_query_count_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_count_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_exclude_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_exclude
+    cd //data
+    xz -vT0 //data/TG16o_query_exclude_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_exclude_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_raw_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_raw
+    cd //data
+    xz -vT0 //data/TG16o_query_raw_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_raw_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_url_resolve_flat_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_resolve_flat
+    cd //data
+    xz -vT0 //data/TG16o_url_resolve_flat_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_url_resolve_flat_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_query_dates_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_dates
+    cd //data
+    xz -vT0 //data/TG16o_query_dates_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_query_dates_apptainer_trace_django.champsim
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/TG16o_locale_from_request_apptainer_trace_django.champsim -s 1000000 -t 100000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python locale_from_request
+    cd //data
+    xz -vT0 //data/TG16o_locale_from_request_apptainer_trace_django.champsim
+    rm -rf //data/TG16o_locale_from_request_apptainer_trace_django.champsim

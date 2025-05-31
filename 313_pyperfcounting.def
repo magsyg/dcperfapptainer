@@ -1,0 +1,535 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./cpython
+    ./count_opcodepairs2
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y libsqlite3-dev build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    ulimit -n 65536
+    cd cpython
+    git checkout 3.13.opcodepaircounter2
+    make clean
+    ./configure --with-computed-gotos --enable-loadable-sqlite-extensions 
+    make -j
+    make install
+    cd ..
+    python3 -m pip install pyperformance
+    python3 -m pyperformance venv create -b 2to3,async_generators,async_tree,async_tree_cpu_io_mixed,async_tree_cpu_io_mixed_tg,async_tree_eager,async_tree_eager_cpu_io_mixed,async_tree_eager_cpu_io_mixed_tg,async_tree_eager_io,async_tree_eager_io_tg,async_tree_eager_memoization,async_tree_eager_memoization_tg,async_tree_eager_tg,async_tree_io,async_tree_io_tg,async_tree_memoization,async_tree_memoization_tg,async_tree_tg,asyncio_tcp,asyncio_tcp_ssl,asyncio_websockets,chameleon,chaos,comprehensions,concurrent_imap,coroutines,coverage,crypto_pyaes,dask,deepcopy,deltablue,django_template,docutils,dulwich_log,fannkuch,float,gc_collect,gc_traversal,generators,genshi,go,hexiom,html5lib,json_dumps,json_loads,logging,mako,mdp,meteor_contest,nbody,nqueens,pathlib,pickle,pickle_dict,pickle_list,pickle_pure_python,pidigits,pprint,pyflate,python_startup,python_startup_no_site,raytrace,regex_compile,regex_dna,regex_effbot,regex_v8,richards,richards_super,scimark,spectral_norm,sqlglot,sqlglot_optimize,sqlglot_parse,sqlglot_transpile,sqlite_synth,sympy,telco,tomli_loads,tornado_http,typing_runtime_protocols,unpack_sequence,unpickle,unpickle_list,unpickle_pure_python,xml_etree
+    rm -rf //opcodepairtest.txt
+
+%runscript
+    cd //django
+    python3 -m pyperformance run -r -b 2to3
+    echo "x-x-x-x"
+    echo 2to3
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_generators
+    echo "x-x-x-x"
+    echo async_generators
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree
+    echo "x-x-x-x"
+    echo async_tree
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_cpu_io_mixed
+    echo "x-x-x-x"
+    echo async_tree_cpu_io_mixed
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_cpu_io_mixed_tg
+    echo "x-x-x-x"
+    echo async_tree_cpu_io_mixed_tg
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_eager
+    echo "x-x-x-x"
+    echo async_tree_eager
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_eager_cpu_io_mixed
+    echo "x-x-x-x"
+    echo async_tree_eager_cpu_io_mixed
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_eager_cpu_io_mixed_tg
+    echo "x-x-x-x"
+    echo async_tree_eager_cpu_io_mixed_tg
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_eager_io
+    echo "x-x-x-x"
+    echo async_tree_eager_io
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_eager_io_tg
+    echo "x-x-x-x"
+    echo async_tree_eager_io_tg
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_eager_memoization
+    echo "x-x-x-x"
+    echo async_tree_eager_memoization
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_eager_memoization_tg
+    echo "x-x-x-x"
+    echo async_tree_eager_memoization_tg
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_eager_tg
+    echo "x-x-x-x"
+    echo async_tree_eager_tg
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_io
+    echo "x-x-x-x"
+    echo async_tree_io
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_io_tg
+    echo "x-x-x-x"
+    echo async_tree_io_tg
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_memoization
+    echo "x-x-x-x"
+    echo async_tree_memoization
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_memoization_tg
+    echo "x-x-x-x"
+    echo async_tree_memoization_tg
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b async_tree_tg
+    echo "x-x-x-x"
+    echo async_tree_tg
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b asyncio_tcp
+    echo "x-x-x-x"
+    echo asyncio_tcp
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b asyncio_tcp_ssl
+    echo "x-x-x-x"
+    echo asyncio_tcp_ssl
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b asyncio_websockets
+    echo "x-x-x-x"
+    echo asyncio_websockets
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b chameleon
+    echo "x-x-x-x"
+    echo chameleon
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b chaos
+    echo "x-x-x-x"
+    echo chaos
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b comprehensions
+    echo "x-x-x-x"
+    echo comprehensions
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b concurrent_imap
+    echo "x-x-x-x"
+    echo concurrent_imap
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b coroutines
+    echo "x-x-x-x"
+    echo coroutines
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b coverage
+    echo "x-x-x-x"
+    echo coverage
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b crypto_pyaes
+    echo "x-x-x-x"
+    echo crypto_pyaes
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b dask
+    echo "x-x-x-x"
+    echo dask
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b deepcopy
+    echo "x-x-x-x"
+    echo deepcopy
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b deltablue
+    echo "x-x-x-x"
+    echo deltablue
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b django_template
+    echo "x-x-x-x"
+    echo django_template
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b docutils
+    echo "x-x-x-x"
+    echo docutils
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b dulwich_log
+    echo "x-x-x-x"
+    echo dulwich_log
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b fannkuch
+    echo "x-x-x-x"
+    echo fannkuch
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b float
+    echo "x-x-x-x"
+    echo float
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b gc_collect
+    echo "x-x-x-x"
+    echo gc_collect
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b gc_traversal
+    echo "x-x-x-x"
+    echo gc_traversal
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b generators
+    echo "x-x-x-x"
+    echo generators
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b genshi
+    echo "x-x-x-x"
+    echo genshi
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b go
+    echo "x-x-x-x"
+    echo go
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b hexiom
+    echo "x-x-x-x"
+    echo hexiom
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b html5lib
+    echo "x-x-x-x"
+    echo html5lib
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b json_dumps
+    echo "x-x-x-x"
+    echo json_dumps
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b json_loads
+    echo "x-x-x-x"
+    echo json_loads
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b logging
+    echo "x-x-x-x"
+    echo logging
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b mako
+    echo "x-x-x-x"
+    echo mako
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b mdp
+    echo "x-x-x-x"
+    echo mdp
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b meteor_contest
+    echo "x-x-x-x"
+    echo meteor_contest
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b nbody
+    echo "x-x-x-x"
+    echo nbody
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b nqueens
+    echo "x-x-x-x"
+    echo nqueens
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b pathlib
+    echo "x-x-x-x"
+    echo pathlib
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b pickle
+    echo "x-x-x-x"
+    echo pickle
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b pickle_dict
+    echo "x-x-x-x"
+    echo pickle_dict
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b pickle_list
+    echo "x-x-x-x"
+    echo pickle_list
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b pickle_pure_python
+    echo "x-x-x-x"
+    echo pickle_pure_python
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b pidigits
+    echo "x-x-x-x"
+    echo pidigits
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b pprint
+    echo "x-x-x-x"
+    echo pprint
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b pyflate
+    echo "x-x-x-x"
+    echo pyflate
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b python_startup
+    echo "x-x-x-x"
+    echo python_startup
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b python_startup_no_site
+    echo "x-x-x-x"
+    echo python_startup_no_site
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b raytrace
+    echo "x-x-x-x"
+    echo raytrace
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b regex_compile
+    echo "x-x-x-x"
+    echo regex_compile
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b regex_dna
+    echo "x-x-x-x"
+    echo regex_dna
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b regex_effbot
+    echo "x-x-x-x"
+    echo regex_effbot
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b regex_v8
+    echo "x-x-x-x"
+    echo regex_v8
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b richards
+    echo "x-x-x-x"
+    echo richards
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b richards_super
+    echo "x-x-x-x"
+    echo richards_super
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b scimark
+    echo "x-x-x-x"
+    echo scimark
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b spectral_norm
+    echo "x-x-x-x"
+    echo spectral_norm
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b sqlglot
+    echo "x-x-x-x"
+    echo sqlglot
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b sqlglot_optimize
+    echo "x-x-x-x"
+    echo sqlglot_optimize
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b sqlglot_parse
+    echo "x-x-x-x"
+    echo sqlglot_parse
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b sqlglot_transpile
+    echo "x-x-x-x"
+    echo sqlglot_transpile
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b sqlite_synth
+    echo "x-x-x-x"
+    echo sqlite_synth
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b sympy
+    echo "x-x-x-x"
+    echo sympy
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b telco
+    echo "x-x-x-x"
+    echo telco
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b tomli_loads
+    echo "x-x-x-x"
+    echo tomli_loads
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b tornado_http
+    echo "x-x-x-x"
+    echo tornado_http
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b typing_runtime_protocols
+    echo "x-x-x-x"
+    echo typing_runtime_protocols
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b unpack_sequence
+    echo "x-x-x-x"
+    echo unpack_sequence
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b unpickle
+    echo "x-x-x-x"
+    echo unpickle
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b unpickle_list
+    echo "x-x-x-x"
+    echo unpickle_list
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b unpickle_pure_python
+    echo "x-x-x-x"
+    echo unpickle_pure_python
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    python3 -m pyperformance run -r -b xml_etree
+    echo "x-x-x-x"
+    echo xml_etree
+    //count_opcodepairs2

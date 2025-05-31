@@ -1,0 +1,17 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y libelf-dev bison pkg-config flex build-essential git python3
+    git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+    cd linux/tools/perf
+    make
+    #uname -r
+
+%runscript
+    cd //
+    perf stat -x , -e instructions,cycles,branch-misses,branch-instructions,cache-misses,cache-references,context-switches,major-faults,L1-dcache-load-misses,L1-icache-load-misses,LLC-load-misses,LLC-store-misses,dTLB-load-misses,dTLB-store-misses,iTLB-load-misses ls

@@ -1,0 +1,25 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+
+%environment
+    export JAVA_HOME="//usr/java/jdk1.8.0_202"
+    export PATH=$JAVA_HOME/bin:$PATH
+
+%files
+    ./benchmarks
+    ./benchpress
+    ./packages
+    ./perfutils
+    ./benchpress_cli.py
+    ./benchpress.log
+    ./cpython
+    ./jdk-11.0.25_linux-x64_bin.tar.gz
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y tar build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    mkdir -p //usr/java
+    tar zxvf jdk-11.0.25_linux-x64_bin.tar.gz -C //usr/java

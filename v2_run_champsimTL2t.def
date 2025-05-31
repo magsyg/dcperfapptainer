@@ -1,0 +1,134 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./cpython
+    ./ChampSim
+    ./i_traces/TL2t/TL2t_template_render_simple_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_values_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_exists_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_in_bulk_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_form_create_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_form_clean_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_update_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_prefetch_related_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_raw_deferred_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_get_or_create_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_distinct_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_get_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_aggregate_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_delete_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_filter_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_model_save_new_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_all_converters_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_template_render_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_url_resolve_flat_i18n_off_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_complex_filter_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_url_reverse_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_delete_related_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_model_save_existing_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_order_by_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_latest_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_url_resolve_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_none_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_all_multifield_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_values_list_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_values_10000_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_l10n_render_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_iterator_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_model_delete_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_qs_filter_chaining_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_model_creation_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_template_compilation_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_all_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_select_related_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_annotate_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_raw_sql_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_url_resolve_nested_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_count_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_exclude_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_raw_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_url_resolve_flat_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_query_dates_apptainer_trace_django.champsim.xz
+    ./i_traces/TL2t/TL2t_locale_from_request_apptainer_trace_django.champsim.xz
+
+%post
+    # Base Dependencies
+    export PIN_ROOT="//ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/"
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y libsqlite3-dev build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl zip unzip tar pkg-config
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    ulimit -n 65536
+    # Setup python
+    cd cpython
+    git checkout 3.13
+    make clean
+    ./configure --with-computed-gotos --enable-loadable-sqlite-extensions 
+    make -j
+    make install
+    cd ..
+    # Setup ChampSim    
+    cd ChampSim
+    git checkout xeonv2
+    git submodule update --init
+    vcpkg/bootstrap-vcpkg.sh
+    vcpkg/vcpkg install
+    ./config.sh champsim_config.json
+    make -j
+
+%runscript
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_template_render_simple_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_values_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_exists_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_in_bulk_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_form_create_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_form_clean_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_update_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_prefetch_related_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_raw_deferred_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_get_or_create_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_distinct_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_get_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_aggregate_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_delete_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_filter_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_model_save_new_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_all_converters_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_template_render_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_url_resolve_flat_i18n_off_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_complex_filter_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_url_reverse_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_delete_related_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_model_save_existing_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_order_by_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_latest_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_url_resolve_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_none_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_all_multifield_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_values_list_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_values_10000_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_l10n_render_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_iterator_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_model_delete_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_qs_filter_chaining_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_model_creation_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_template_compilation_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_all_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_select_related_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_annotate_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_raw_sql_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_url_resolve_nested_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_count_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_exclude_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_raw_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_url_resolve_flat_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_query_dates_apptainer_trace_django.champsim.xz
+    //ChampSim/bin/champsim --warmup_instructions 1000000 --simulation_instructions 99000000 //i_traces/TL2t/TL2t_locale_from_request_apptainer_trace_django.champsim.xz
+
+
+
+
+
+

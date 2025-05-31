@@ -1,0 +1,55 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./cpython
+    ./ChampSim
+
+%post
+    # Base Dependencies
+    export PIN_ROOT="//ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/"
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y libsqlite3-dev build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl zip unzip tar pkg-config
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    ulimit -n 65536
+    # Setup Python Version
+    cd cpython
+    git checkout 3.13.top1local
+    make clean
+    ./configure --with-computed-gotos --enable-loadable-sqlite-extensions 
+    make -j
+    make install
+    cd ..
+    # Setup ChampSim    
+    cd ChampSim
+    git submodule update --init
+    vcpkg/bootstrap-vcpkg.sh
+    vcpkg/vcpkg install
+    ./config.sh champsim_config.json
+    make -j
+    # Install pin
+    cd //ChampSim/tracer/pin/
+    wget https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.22-98547-g7a303a835-gcc-linux.tar.gz
+    tar zxf pin-3.22-98547-g7a303a835-gcc-linux.tar.gz  --no-same-owner
+    rm -rf pin-3.22-98547-g7a303a835-gcc-linux.tar.gz
+    cd pin-3.22-98547-g7a303a835-gcc-linux/source/tools
+    make -j
+    cd //ChampSim/tracer/pin/
+    make -j
+    cd //
+    #
+    # Django Bench
+    python3 -m pip install -e git+https://github.com/django/djangobench.git#egg=djangobench
+    python3 -m pip install django pytz enum34 tzdata
+    git clone https://github.com/django/django.git
+
+%runscript
+    cd //
+    mkdir /data
+    cd //django
+    //ChampSim/tracer/pin/pin-3.22-98547-g7a303a835-gcc-linux/pin -t //ChampSim/tracer/pin/obj-intel64/champsim_tracer.so -o //data/LT1n_apptainer_trace_django.champsim -s 50000000 -t 1000000000 -- djangobench --trials=1000 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python
+    cd //data
+    xz -vT0 //data/LT1n_apptainer_trace_django.champsim
+    rm -rf //data/LT1n_apptainer_trace_django.champsim

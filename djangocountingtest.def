@@ -1,0 +1,328 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./cpython
+    ./count_opcodepairs2
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y libsqlite3-dev build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    ulimit -n 65536
+    cd cpython
+    git checkout 3.13.opcodepaircounter2
+    make clean
+    ./configure --with-computed-gotos --enable-loadable-sqlite-extensions 
+    make -j
+    make install
+    cd ..
+    python3 -m pip install -e git+https://github.com/django/djangobench.git#egg=djangobench
+    python3 -m pip install django pytz enum34 tzdata
+    git clone https://github.com/django/django.git
+    rm -rf //opcodepairtest.txt
+
+%runscript
+    cd //django
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python template_render_simple
+    echo "x-x-x-x"
+    echo template_render_simple
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_values
+    echo "x-x-x-x"
+    echo query_values
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_exists
+    echo "x-x-x-x"
+    echo query_exists
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_in_bulk    
+    echo "x-x-x-x"
+    echo query_in_bulk
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python form_create      
+    echo "x-x-x-x"
+    echo form_create
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python form_clean       
+    echo "x-x-x-x"
+    echo form_clean
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_update     
+    echo "x-x-x-x"
+    echo query_update
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_prefetch_related
+    echo "x-x-x-x"
+    echo query_prefetch_related
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_raw_deferred
+    echo "x-x-x-x"
+    echo query_raw_deferred
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_get_or_create
+    echo "x-x-x-x"
+    echo query_get_or_create
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_distinct   
+    echo "x-x-x-x"
+    echo query_distinct
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_get        
+    echo "x-x-x-x"
+    echo query_get
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_aggregate  
+    echo "x-x-x-x"
+    echo query_aggregate
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_delete     
+    echo "x-x-x-x"
+    echo query_delete
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_filter     
+    echo "x-x-x-x"
+    echo query_filter
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python model_save_new   
+    echo "x-x-x-x"
+    echo model_save_new
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_all_converters
+    echo "x-x-x-x"
+    echo query_all_converters
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python template_render  
+    echo "x-x-x-x"
+    echo template_render
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_resolve_flat_i18n_off
+    echo "x-x-x-x"
+    echo url_resolve_flat_i18n_off
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_complex_filter
+    echo "x-x-x-x"
+    echo query_complex_filter
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_reverse      
+    echo "x-x-x-x"
+    echo url_reverse
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_delete_related
+    echo "x-x-x-x"
+    echo query_delete_related
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python model_save_existing
+    echo "x-x-x-x"
+    echo model_save_existing
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_order_by   
+    echo "x-x-x-x"
+    echo query_order_by
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_latest     
+    echo "x-x-x-x"
+    echo query_latest
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_resolve      
+    echo "x-x-x-x"
+    echo url_resolve
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_none       
+    echo "x-x-x-x"
+    echo query_none
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_all_multifield
+    echo "x-x-x-x"
+    echo query_all_multifield
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_values_list
+    echo "x-x-x-x"
+    echo query_values_list
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_values_10000
+    echo "x-x-x-x"
+    echo query_values_10000
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python l10n_render      
+    echo "x-x-x-x"
+    echo l10n_render
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_iterator   
+    echo "x-x-x-x"
+    echo query_iterator
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python model_delete     
+    echo "x-x-x-x"
+    echo model_delete
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python qs_filter_chaining
+    echo "x-x-x-x"
+    echo qs_filter_chaining
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python model_creation   
+    echo "x-x-x-x"
+    echo model_creation
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python template_compilation
+    echo "x-x-x-x"
+    echo template_compilation
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_all        
+    echo "x-x-x-x"
+    echo query_all
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_select_related
+    echo "x-x-x-x"
+    echo query_select_related
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_annotate   
+    echo "x-x-x-x"
+    echo query_annotate
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python raw_sql
+    echo "x-x-x-x"
+    echo raw_sql
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_resolve_nested
+    echo "x-x-x-x"
+    echo url_resolve_nested
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python default_middleware
+    echo "x-x-x-x"
+    echo default_middleware
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_count      
+    echo "x-x-x-x"
+    echo query_count
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_exclude    
+    echo "x-x-x-x"
+    echo query_exclude
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_raw        
+    echo "x-x-x-x"
+    echo query_raw
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python multi_value_dict 
+    echo "x-x-x-x"
+    echo multi_value_dict
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python startup
+    echo "x-x-x-x"
+    echo startup
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python url_resolve_flat 
+    echo "x-x-x-x"
+    echo url_resolve_flat
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python query_dates      
+    echo "x-x-x-x"
+    echo query_dates
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt
+    djangobench --trials=2500 --vcs=none --control=. --experiment=. --control-python=//cpython/python --experiment-python=//cpython/python locale_from_request
+    echo "x-x-x-x"
+    echo locale_from_request
+    //count_opcodepairs2
+    echo "x-x-x-x"
+    rm -rf //opcodepairtest.txt

@@ -28,6 +28,7 @@ Stage: build
     cd /flash23
     git clone https://github.com/facebookresearch/DCPerf-datasets
     rm -rf DCPerf-datasets/bpc_t93586_s2_synthetic/table_93586/table_uu9fgFJsVdtOC878DXBVyo_IqVwQVjeAOXhXDBOM8Tc_/
+    rm -rf .git
     mv DCPerf-datasets/bpc_t93586_s2_synthetic ./bpc_t93586_s2_synthetic
     cd -
     pwd

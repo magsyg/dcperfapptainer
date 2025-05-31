@@ -1,0 +1,5 @@
+Running all benchmarks
+Control: Django 6.0.dev20250206155744 (in .)
+Experiment: Django 6.0.dev20250206155744 (in .)
+
+Running 'template_render_simple' benchmark ...

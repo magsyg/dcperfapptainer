@@ -1,0 +1,29 @@
+Bootstrap: docker
+From: ubuntu:22.04
+Stage: build
+
+%files
+    ./cpython
+    ./count_opcodepairs
+
+%post
+    chmod 1777 /tmp
+    apt-get -y update
+    apt install -y libsqlite3-dev build-essential zlib1g-dev git wget lshw dmidecode sudo bc vim netcat curl
+    apt install -y libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev
+    ulimit -n 65536
+    cd cpython
+    git checkout 3.11.opcodepaircounter
+    make clean
+    ./configure --with-computed-gotos --enable-loadable-sqlite-extensions 
+    make -j
+    make install
+    cd ..
+    python3 -m pip install pyperformance
+    python3 -m pyperformance venv create -b all
+    rm -rf //opcodepairtest.txt
+
+%runscript
+    cd //
+    //cpython/python //cpython/Tools/scripts/run_tests.py -j 1 -u all
+    //count_opcodepairs

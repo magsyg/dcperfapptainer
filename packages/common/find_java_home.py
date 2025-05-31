@@ -13,13 +13,13 @@ import subprocess
 def find_java_home() -> str:
     # Try finding a home path for java 8
     candidates = [
-        "/usr/lib/jvm/java-1.8.0-openjdk",
-        "/usr/lib/jvm/java-1.8.0-jre",
-        "/usr/lib/jvm/java-8-openjdk",
-        "/usr/lib/jvm/java-8-jre",
-        "/usr/lib/jvm/openjdk-8",
-        "/usr/lib/jvm/jre-1.8.0",
-        "/usr/lib/jvm/jre-1.8.0-openjdk",
+        "//usr/lib/jvm/java-1.8.0-openjdk",
+        "//usr/lib/jvm/java-1.8.0-jre",
+        "//usr/lib/jvm/java-8-openjdk",
+        "//usr/lib/jvm/java-8-jre",
+        "//usr/lib/jvm/openjdk-8",
+        "//usr/lib/jvm/jre-1.8.0",
+        "//usr/lib/jvm/jre-1.8.0-openjdk",
     ]
     archname = platform.machine()
     if archname == "x86_64":
@@ -38,7 +38,8 @@ def find_java_home() -> str:
         java_home = str(pathlib.Path(os.path.realpath(java_path)).parents[1])
     except subprocess.CalledProcessError:
         java_home = ""
-
+    print(java_home)
+    print("java home found")
     return java_home
 
 
